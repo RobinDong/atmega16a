@@ -1,2 +1,2 @@
-# atmega16a
-Code examples for atmeg16a
+# ATmega16a
+Code examples for ATmeg16a
