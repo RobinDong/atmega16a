@@ -5,7 +5,7 @@
 unsigned int timeout = 0;
 
 void enter_low_power(void) {
-  MCUCR = 0x00 | (1 << SE) | (1 << SM0);
+  MCUCR = (1 << SE) | (1 << SM0);
   __asm__ __volatile__ ("sleep");
 }
 
@@ -18,6 +18,7 @@ int main(void)
 	DDRB = 0x01;
   PORTB = 0x00;
 
+  // Setup timer2
   TCCR2=(1 << CS20) | (1 << CS21) | (1 << CS22);
   TCNT2=0x00;
   TIMSK=(1 << TOIE2);
@@ -35,5 +36,4 @@ ISR(TIMER2_OVF_vect) {
   PORTB ^= 0x01;
 
   TCNT2 = 0x00;
-	sei();
 }
