@@ -7,6 +7,8 @@
 
 volatile unsigned int mode = 0;
 volatile unsigned short ports_map = 1;
+volatile unsigned char inside_ports_map = 1;
+volatile unsigned char outside_ports_map = 0x80;
 
 void enter_low_power(void) {
   MCUCR = (1 << SE) | (1 << SM0);
@@ -42,6 +44,26 @@ void downside(void) {
   ports_map >>= 1;
   if (ports_map == 0) {
     ports_map = 0x8000;
+  }
+}
+
+// light from PA0->PA7 and PC0->PC7
+void inside(void) {
+  PORTA = inside_ports_map;
+  PORTC = inside_ports_map;
+  inside_ports_map <<= 1;
+  if (inside_ports_map == 0) {
+    inside_ports_map = 1;
+  }
+}
+
+// light from PA7->PA0 and PC7->PC0
+void outside(void) {
+  PORTA = outside_ports_map;
+  PORTC = outside_ports_map;
+  outside_ports_map >>= 1;
+  if (outside_ports_map == 0) {
+    outside_ports_map = 0x80;
   }
 }
 
@@ -93,14 +115,18 @@ ISR(TIMER2_OVF_vect) {
     upside();
   } else if (mode == 1) {
     downside();
+  } else if (mode == 2) {
+    inside();
+  } else if (mode == 3) {
+    outside();
   }
 }
 
 ISR(INT1_vect) {
   // Flip PORTB0
   PORTB ^= 0x01;
-  // `mode` loops in range [0, 1]
-  if (++mode > 1) {
+  // `mode` loops in range [0, 1, 2, 3]
+  if (++mode > 3) {
     mode = 0;
   }
 }
