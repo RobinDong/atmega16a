@@ -32,7 +32,7 @@ int main(void)
 }
 
 ISR(TIMER2_OVF_vect) {
-  // Flip bit 3 of PORTB
+  // Flip bit 0 of PORTB
   PORTB ^= 0x01;
 
   TCNT2 = 0x00;
